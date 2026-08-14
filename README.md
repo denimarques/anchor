@@ -82,13 +82,13 @@ const tokens = resolveTokens("landing", clientTokens, ProjectTokensSchema);
    por padrão; cada projeto compõe explicitamente por cima do tipo restrito:
 
 ```ts
-import { type LandingSectionName } from "@voce/anchor";
+import { type LandingSectionName } from "@denimarques/anchor";
 
 type ClientLandingSection = LandingSectionName | "Products" | "Testimonials" | "Promotions";
 ```
 
 Se uma seção/rota é conceito novo, que não existe ainda no registry nem
-serve a mais de um cliente, ela nem entra no `@voce/anchor` — fica local,
+serve a mais de um cliente, ela nem entra no `@denimarques/anchor` — fica local,
 no repo do cliente, até um segundo cliente pedir o mesmo conceito.
 
 ## Ecommerce: duas recipes irmãs
@@ -142,12 +142,12 @@ Deve aparecer `refs/tags/v1.0.0` (ou a versão que você publicou) — não
 ## Como um cliente consome isto
 
 No `package.json` do repo do cliente, a chave da dependência precisa ser
-**exatamente** `@voce/anchor` (é o `name` deste pacote — se a chave for
+**exatamente** `@denimarques/anchor` (é o `name` deste pacote — se a chave for
 diferente, o `node_modules` cria a pasta com o nome da chave, não com o
-`name` do pacote, e todo `import ... from "@voce/anchor"` quebra):
+`name` do pacote, e todo `import ... from "@denimarques/anchor"` quebra):
 
 ```json
-"@voce/anchor": "github:denimarques/anchor#v1.0.0"
+"@denimarques/anchor": "github:denimarques/anchor#v1.0.0"
 ```
 
 (Troque `v1.0.0` pela tag que você de fato publicou, se for outra.)

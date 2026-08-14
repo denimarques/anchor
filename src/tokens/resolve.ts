@@ -49,7 +49,7 @@ export function resolveTokens<T extends Tokens = Tokens>(
     );
     if (unknownKeys.length > 0 && !schema) {
       console.warn(
-        `[@voce/anchor] resolveTokens recebeu chave(s) fora do TokensSchema core, sem um schema estendido no 3º argumento: ${unknownKeys.join(
+        `[@denimarques/anchor] resolveTokens recebeu chave(s) fora do TokensSchema core, sem um schema estendido no 3º argumento: ${unknownKeys.join(
           ", "
         )}. Essas chaves serão descartadas do resultado. Se são tokens de extensão do projeto, passe o schema estendido (TokensSchema.extend({...})) como 3º argumento — se não, confira se não é erro de digitação.`
       );

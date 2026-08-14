@@ -1,5 +1,5 @@
 {
-  "name": "@voce/anchor",
+  "name": "@denimarques/anchor",
   "version": "1.1.0",
   "description": "Tokens, defaults por plataforma e receitas de layout compartilhados entre projetos de cliente.",
   "main": "dist/index.js",
