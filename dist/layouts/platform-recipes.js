@@ -82,4 +82,27 @@ exports.platformRecipes = {
             "Checkout",
         ],
     },
+    news: {
+        // Quinto `type`. Cogitei reaproveitar "shop" (também é Header+Footer,
+        // multi-página pública) mas "shop" carrega semântica de
+        // carrinho/checkout que não existe num portal de notícia — o fluxo
+        // estrutural aqui é navegar → ler conteúdo, sem "comprar" nada. Daí
+        // "publication" como type próprio, mesmo com chrome parecido ao
+        // storefront.
+        //
+        // Home/Article/Category são o mínimo estrutural de um portal de
+        // notícia: sem página de artigo não é site de notícia, é outra coisa;
+        // sem agrupamento por editoria/categoria, é só uma lista solta de
+        // textos, não um "portal". Search, Author, Newsletter e Comments ficam
+        // de fora do default de propósito — nem todo portal libera comentários,
+        // por exemplo — e viram vocabulário reutilizável (ver registry.ts),
+        // composto por projeto, não imposto pela recipe.
+        type: "publication",
+        shell: ["Header", "Footer"],
+        routes: [
+            "Home",
+            "Article",
+            "Category",
+        ],
+    },
 };

@@ -15,22 +15,32 @@ exports.sectionNames = void 0;
 //   1) ESTRUTURAIS (universais ao arquétipo, viram default de recipe):
 //      Header, Hero, ContactForm, Footer, Sidebar, Topbar, Dashboard,
 //      Settings, Billing, Contacts, Deals, Activities, Orders, Customers,
-//      Home, ProductDetail, Cart, Checkout. Testados contra "é a própria
-//      definição do arquétipo, ou é conteúdo que varia por negócio?".
+//      Home, ProductDetail, Cart, Checkout, Article, Category. Testados
+//      contra "é a própria definição do arquétipo, ou é conteúdo que varia
+//      por negócio?".
 //      "Products" está nesta categoria E na 2: é estrutural pro admin de
 //      ecommerce e pro storefront público (catálogo é a própria definição
 //      de loja), mas continua vocabulário opcional pro dashboard genérico.
+//      "Home" está estrutural pro storefront E pro news — página inicial é
+//      a própria definição de site multi-página público, seja loja ou
+//      portal.
 //
 //   2) VOCABULÁRIO REUTILIZÁVEL (útil a VÁRIOS clientes de um mesmo tipo de
-//      negócio — catálogo, e-commerce, portfólio — mas não a QUALQUER
-//      landing/dashboard, então não é default de nenhuma recipe): About,
-//      ProductGrid, Products, Promotions, Testimonials.
+//      negócio — catálogo, e-commerce, portfólio, portal de notícia — mas
+//      não a QUALQUER landing/dashboard/publication, então não é default de
+//      nenhuma recipe): About, ProductGrid, Products, Promotions,
+//      Testimonials, Search, Author, Newsletter, Comments.
 //      Ficam aqui pra dar nome padronizado quando mais de um cliente
 //      precisar do mesmo conceito — mas cada projeto escolhe/compõe as que
 //      usa, a recipe do arquétipo não impõe nenhuma delas:
 //
 //        type ClientLandingSection = LandingSectionName | "About" | "ProductGrid" | "Promotions" | "Testimonials";
 //        type ClientDashboardRoute = DashboardRouteName | "Products" | "Testimonials" | "Promotions";
+//        type ClientNewsRoute = NewsRouteName | "Search" | "Author" | "Newsletter" | "Comments";
+//
+//      Nem todo portal de notícia libera comentários, por exemplo — daí
+//      "Comments" ser vocabulário opcional, não estrutural: um portal sem
+//      comentários continua sendo, inequivocamente, um portal de notícia.
 //
 //      Se uma seção/rota é conceito novo que não existe ainda aqui nem serve
 //      a mais de um cliente, ela nem entra neste arquivo — fica só local, no
@@ -60,4 +70,10 @@ exports.sectionNames = [
     "ProductDetail",
     "Cart",
     "Checkout",
+    "Article",
+    "Category",
+    "Search",
+    "Author",
+    "Newsletter",
+    "Comments",
 ];

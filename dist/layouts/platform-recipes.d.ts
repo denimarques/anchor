@@ -28,6 +28,11 @@ export declare const platformRecipes: {
         shell: readonly ["Header", "Footer"];
         routes: readonly ["Home", "Products", "ProductDetail", "Cart", "Checkout"];
     };
+    news: {
+        type: "publication";
+        shell: readonly ["Header", "Footer"];
+        routes: readonly ["Home", "Article", "Category"];
+    };
 };
 export type LandingSectionName = (typeof platformRecipes)["landing"]["sections"][number];
 export type DashboardRouteName = (typeof platformRecipes)["dashboard"]["routes"][number];
@@ -35,3 +40,4 @@ export type SaasRouteName = (typeof platformRecipes)["saas"]["routes"][number];
 export type CrmRouteName = (typeof platformRecipes)["crm"]["routes"][number];
 export type EcommerceRouteName = (typeof platformRecipes)["ecommerce"]["routes"][number];
 export type StorefrontRouteName = (typeof platformRecipes)["storefront"]["routes"][number];
+export type NewsRouteName = (typeof platformRecipes)["news"]["routes"][number];

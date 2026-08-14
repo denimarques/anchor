@@ -1,6 +1,6 @@
 import type { Tokens } from "./schema";
 
-export type Platform = "landing" | "dashboard" | "saas" | "crm" | "ecommerce" | "storefront";
+export type Platform = "landing" | "dashboard" | "saas" | "crm" | "ecommerce" | "storefront" | "news";
 
 export const platformDefaults: Record<Platform, Partial<Tokens>> = {
   landing: {
@@ -45,6 +45,17 @@ export const platformDefaults: Record<Platform, Partial<Tokens>> = {
     radiusButton: "9999px",
     radiusCard: "16px",
     fontHeading: "Poppins",
+    fontBody: "Inter",
+  },
+  news: {
+    // Ponto de partida editorial — cantos menos arredondados que
+    // landing/storefront (conteúdo denso de leitura pede menos "playful",
+    // mais sóbrio) e serif no heading pra diferenciar de UI/produto. É
+    // palpite razoável, não decisão testada contra cliente real: ajuste
+    // livremente quando o primeiro projeto de portal de notícia existir.
+    radiusButton: "6px",
+    radiusCard: "8px",
+    fontHeading: "Georgia",
     fontBody: "Inter",
   },
 };

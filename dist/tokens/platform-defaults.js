@@ -46,4 +46,15 @@ exports.platformDefaults = {
         fontHeading: "Poppins",
         fontBody: "Inter",
     },
+    news: {
+        // Ponto de partida editorial — cantos menos arredondados que
+        // landing/storefront (conteúdo denso de leitura pede menos "playful",
+        // mais sóbrio) e serif no heading pra diferenciar de UI/produto. É
+        // palpite razoável, não decisão testada contra cliente real: ajuste
+        // livremente quando o primeiro projeto de portal de notícia existir.
+        radiusButton: "6px",
+        radiusCard: "8px",
+        fontHeading: "Georgia",
+        fontBody: "Inter",
+    },
 };
