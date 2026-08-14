@@ -37,13 +37,14 @@ composta por cima do tipo restrito que a recipe exporta.
 ## `TokensSchema` é intencionalmente mínimo
 
 Cobre só o que é universal a qualquer plataforma (7 campos). Tokens
-específicos de um projeto (ex: `colorWhatsapp`, `spacingSection` de um
-catálogo) não entram aqui — o projeto estende localmente:
+específicos de um projeto (ex: uma cor de destaque secundária, um
+espaçamento de bloco do hero) não entram aqui — o projeto estende
+localmente:
 
 ```ts
 const ProjectTokensSchema = TokensSchema.extend({
-  colorWhatsapp: z.string(),
-  spacingSection: z.string(),
+  colorAccentSecondary: z.string(),
+  spacingHeroBlock: z.string(),
 });
 ```
 
@@ -63,9 +64,9 @@ descartados do resultado final (o `.parse()` valida contra o schema, e o
 schema padrão só conhece os 7 campos do núcleo):
 
 ```ts
-const ProjectTokensSchema = TokensSchema.extend({ colorWhatsapp: z.string() });
+const ProjectTokensSchema = TokensSchema.extend({ colorAccentSecondary: z.string() });
 const tokens = resolveTokens("landing", clientTokens, ProjectTokensSchema);
-// tokens.colorWhatsapp existe e está tipado
+// tokens.colorAccentSecondary existe e está tipado
 ```
 
 ## Vocabulário reutilizável vs. rota estrutural
@@ -81,9 +82,9 @@ const tokens = resolveTokens("landing", clientTokens, ProjectTokensSchema);
    por padrão; cada projeto compõe explicitamente por cima do tipo restrito:
 
 ```ts
-import { type DashboardRouteName } from "@voce/anchor";
+import { type LandingSectionName } from "@voce/anchor";
 
-type OleosDashboardRoute = DashboardRouteName | "Products" | "Testimonials" | "Promotions";
+type ClientLandingSection = LandingSectionName | "Products" | "Testimonials" | "Promotions";
 ```
 
 Se uma seção/rota é conceito novo, que não existe ainda no registry nem

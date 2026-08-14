@@ -45,16 +45,16 @@ test("chave desconhecida em clientTokens SEM schema estendido é descartada pelo
 
 test("chave de extensão de projeto COM schema estendido sobrevive ao parse", () => {
   const ProjectTokensSchema = TokensSchema.extend({
-    colorWhatsapp: z.string(),
+    colorAccentSecondary: z.string(),
   });
 
   const result = resolveTokens(
     "landing",
-    { colorPrimary: "#E6007A", colorWhatsapp: "#25D366" },
+    { colorPrimary: "#E6007A", colorAccentSecondary: "#1D9E75" },
     ProjectTokensSchema
   );
 
-  assert.equal(result.colorWhatsapp, "#25D366");
+  assert.equal(result.colorAccentSecondary, "#1D9E75");
   assert.equal(result.colorPrimary, "#E6007A");
   // ainda herda defaults de platform/core normalmente
   assert.equal(result.radiusButton, "9999px");

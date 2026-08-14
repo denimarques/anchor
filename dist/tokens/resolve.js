@@ -29,9 +29,9 @@ const CORE_KEYS = new Set(Object.keys(schema_1.TokensSchema.shape));
  * garantia de que ela sobrevive ao parse — passar o schema certo é o que
  * garante isso):
  *
- *   const ProjectTokensSchema = TokensSchema.extend({ colorWhatsapp: z.string() });
+ *   const ProjectTokensSchema = TokensSchema.extend({ colorAccentSecondary: z.string() });
  *   const tokens = resolveTokens("landing", clientTokens, ProjectTokensSchema);
- *   // tokens.colorWhatsapp existe e está tipado
+ *   // tokens.colorAccentSecondary existe e está tipado
  *
  * O aviso de chave desconhecida continua comparando contra o núcleo (não
  * contra o schema estendido passado), porque o objetivo dele é só pegar

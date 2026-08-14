@@ -29,8 +29,8 @@ exports.sectionNames = void 0;
 //      precisar do mesmo conceito — mas cada projeto escolhe/compõe as que
 //      usa, a recipe do arquétipo não impõe nenhuma delas:
 //
-//        type OleosLandingSection = LandingSectionName | "About" | "ProductGrid" | "Promotions" | "Testimonials";
-//        type OleosDashboardRoute = DashboardRouteName | "Products" | "Testimonials" | "Promotions";
+//        type ClientLandingSection = LandingSectionName | "About" | "ProductGrid" | "Promotions" | "Testimonials";
+//        type ClientDashboardRoute = DashboardRouteName | "Products" | "Testimonials" | "Promotions";
 //
 //      Se uma seção/rota é conceito novo que não existe ainda aqui nem serve
 //      a mais de um cliente, ela nem entra neste arquivo — fica só local, no

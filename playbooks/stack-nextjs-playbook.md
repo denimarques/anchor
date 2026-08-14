@@ -2,8 +2,9 @@
 
 **Versão:** 1.0
 **Data:** 10 de agosto de 2026
-**Revisado em:** 10 de agosto de 2026 — versão inicial, extraída do PRD do Catálogo de Óleos
-Essenciais (§8.3/§8.4, v1.11).
+**Revisado em:** 10 de agosto de 2026 — versão inicial, extraída de um projeto de cliente
+que combinava esta stack, no momento em que ficou claro que os padrões técnicos
+encontrados eram genéricos à combinação de tecnologias, não ao produto específico.
 
 > **Este arquivo não pertence a nenhum projeto específico.** Diferente do
 > `engenharia-playbook.md` (que é sobre *processo*, vale pra qualquer stack), este é sobre
@@ -11,7 +12,7 @@ Essenciais (§8.3/§8.4, v1.11).
 > combinação específica de tecnologias. Se um dia você trocar de stack, este arquivo não
 > se aplica mais (mas o `engenharia-playbook.md` continua valendo).
 >
-> **Origem:** extraído do PRD do Catálogo de Óleos Essenciais (§8.3/§8.4, v1.11).
+> **Origem:** extraído do PRD de um projeto de cliente que usava esta stack.
 
 > **Referenciado por (rastreabilidade reversa):**
 >

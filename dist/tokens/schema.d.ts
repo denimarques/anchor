@@ -3,13 +3,14 @@ import { z } from "zod";
  * Núcleo mínimo de tokens — intencionalmente enxuto.
  *
  * Este schema cobre só o que é universal a QUALQUER plataforma (landing,
- * dashboard, saas, crm). Tokens específicos de um projeto (ex: `colorWhatsapp`,
- * `spacingSection`, `gridColumnsProdutos` do Catálogo de Óleos) NÃO entram
- * aqui — eles vivem no repo do cliente, estendendo este schema:
+ * dashboard, saas, crm). Tokens específicos de um projeto (ex:
+ * `colorAccentSecondary`, `spacingHeroBlock`, `gridColumnsCollection` de um
+ * catálogo específico) NÃO entram aqui — eles vivem no repo do cliente,
+ * estendendo este schema:
  *
  *   const ProjectTokensSchema = TokensSchema.extend({
- *     colorWhatsapp: z.string(),
- *     spacingSection: z.string(),
+ *     colorAccentSecondary: z.string(),
+ *     spacingHeroBlock: z.string(),
  *   });
  *
  * Regra de decisão (mesma do playbook de engenharia, adaptada): se o token
