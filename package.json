@@ -1,0 +1,24 @@
+{
+  "name": "@voce/anchor",
+  "version": "1.1.0",
+  "description": "Tokens, defaults por plataforma e receitas de layout compartilhados entre projetos de cliente.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "playbooks"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepack": "npm run build",
+    "test": "npm run build && node --test"
+  },
+  "peerDependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "typescript": "^5.5.4",
+    "zod": "^3.23.8"
+  }
+}

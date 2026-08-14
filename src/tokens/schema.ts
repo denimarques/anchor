@@ -1,0 +1,33 @@
+import { z } from "zod";
+
+/**
+ * Núcleo mínimo de tokens — intencionalmente enxuto.
+ *
+ * Este schema cobre só o que é universal a QUALQUER plataforma (landing,
+ * dashboard, saas, crm). Tokens específicos de um projeto (ex: `colorWhatsapp`,
+ * `spacingSection`, `gridColumnsProdutos` do Catálogo de Óleos) NÃO entram
+ * aqui — eles vivem no repo do cliente, estendendo este schema:
+ *
+ *   const ProjectTokensSchema = TokensSchema.extend({
+ *     colorWhatsapp: z.string(),
+ *     spacingSection: z.string(),
+ *   });
+ *
+ * Regra de decisão (mesma do playbook de engenharia, adaptada): se o token
+ * deveria existir por padrão em TODO projeto novo de uma plataforma, ele
+ * é candidato a entrar no `platformDefaults` daquela plataforma (não no
+ * TokensSchema em si, que continua descrevendo só a FORMA mínima comum).
+ * Se o token só faz sentido para um cliente específico, ele nunca sobe
+ * pra este pacote — fica na extensão do projeto.
+ */
+export const TokensSchema = z.object({
+  colorPrimary: z.string(),
+  colorBackground: z.string(),
+  colorAccent: z.string().optional(),
+  radiusButton: z.string(),
+  radiusCard: z.string(),
+  fontHeading: z.string(),
+  fontBody: z.string(),
+});
+
+export type Tokens = z.infer<typeof TokensSchema>;
