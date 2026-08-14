@@ -49,9 +49,9 @@ const ProjectTokensSchema = TokensSchema.extend({
 ```
 
 Se um token deveria existir por padrão em todo projeto novo de uma
-plataforma (não só um cliente), ele é candidato a `platformDefaults`
-daquela plataforma — não ao `TokensSchema` em si, que continua descrevendo
-só a forma mínima comum. Ver comentário em `src/tokens/schema.ts`.
+plataforma (não só um cliente), ele é candidato a `platformDefaults` da
+plataforma — não ao `TokensSchema` em si, que continua descrevendo só a
+forma mínima comum. Ver comentário em `src/tokens/schema.ts`.
 
 `resolveTokens` não usa `.strict()` no merge final (isso quebraria projetos
 que legitimamente estendem `Tokens`), mas avisa no console (fora de
@@ -112,14 +112,32 @@ npm pack        # gera o .tgz local, pra testar antes de publicar
 então `dist/` nunca vai parar desatualizado em relação a `src/` por
 esquecimento.
 
-Pra publicar de verdade:
+Pra publicar de verdade — **`X.X.X` abaixo é placeholder: troque pelo
+número de versão real (ex: `1.0.0`, `1.1.0`) antes de rodar, nunca copie o
+comando com `X.X.X` literal:**
 
 ```bash
 git add .
-git commit -m "anchor vX.X.X"
-git tag vX.X.X
-git push && git push --tags
+git commit -m "anchor v1.0.0"   # ajuste o número pra versão real que está publicando
+git tag v1.0.0                  # idem — precisa bater com o número acima
+git push
+git push --tags
 ```
+
+> **Nota:** `git push && git push --tags` (com `&&`) funciona em bash/zsh e no
+> PowerShell 7+, mas **não** no Windows PowerShell 5.x padrão (`&&` não é
+> separador de comando nessa versão). No PowerShell 5.x, rode os dois `git
+> push` em linhas separadas, como acima.
+
+Depois de publicar, confirme que a tag correta chegou ao remoto antes de
+referenciá-la em qualquer projeto de cliente:
+
+```bash
+git ls-remote --tags origin
+```
+
+Deve aparecer `refs/tags/v1.0.0` (ou a versão que você publicou) — não
+`refs/tags/X.X.X`.
 
 ## Como um cliente consome isto
 
@@ -129,8 +147,10 @@ diferente, o `node_modules` cria a pasta com o nome da chave, não com o
 `name` do pacote, e todo `import ... from "@voce/anchor"` quebra):
 
 ```json
-"@voce/anchor": "github:seu-usuario/anchor#v1.0.0"
+"@voce/anchor": "github:denimarques/anchor#v1.0.0"
 ```
+
+(Troque `v1.0.0` pela tag que você de fato publicou, se for outra.)
 
 ## Regra de ouro
 
