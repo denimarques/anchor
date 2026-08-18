@@ -1,5 +1,7 @@
 # Playbook de Engenharia — Processo (Git, CI, Documentação)
 
+<!-- doc-version: 1.0 -->
+
 **Versão:** 1.0
 **Data:** 18 de agosto de 2026
 **Revisado em:** 18 de agosto de 2026 — reconstruído a partir das rules e skills que já
@@ -18,16 +20,29 @@ o arquivo publicado até então tinha, por engano, o mesmo conteúdo de
 
 > **Referenciado por (rastreabilidade reversa):**
 >
-> | Projeto | Versão referenciada | Observação |
-> | --- | --- | --- |
-> | Lente Peixe (Catálogo de Óleos Essenciais) | v1.0 (esta) | `tech-specification.md` §8 referencia §1–§4 deste playbook; `prd.md` referencia §6 para a regra de fonte corrente |
+> Formato de tabela **parseável por `scripts/verify-traceability.js`** (ver §9) — cada
+> linha é um par (documento do cliente, versão registrada no momento em que ele passou a
+> referenciar esta seção). Duas regras fixas: (1) a versão do documento do cliente nunca
+> vai misturada em texto livre — sempre na sua própria coluna; (2) a coluna de
+> Âncora(s)/Observação **nunca cita número de seção** ("§6", "§2.4") — só o nome da
+> âncora entre crases. Documentos de projeto (PRD, tech-spec) nascem de template e a
+> numeração varia entre projetos; um número aqui criaria um mapeamento que parece
+> estável e não é.
+>
+> | Projeto | Documento do cliente | `doc-version` registrado | Versão deste playbook | Âncora(s) referenciada(s) |
+> | --- | --- | --- | --- | --- |
+> | Lente Peixe | `docs/prd.md` | `1.1` | `v1.0` | `fonte-corrente-valores-tecnicos` |
+> | Lente Peixe | `docs/tech/tech-specification.md` | `1.3` | `v1.0` | `fluxo-pr-nunca-merge-local`, `commit-automatico-task-a-task`, `bootstrap-ci-branch-protection`, `automatico-vs-confirmacao-explicita` (git/CI) e `auditoria-consistencia-documentos` |
 >
 > Se este playbook mudar de forma incompatível com um projeto listado aqui, sinalize a
-> revisão necessária.
+> revisão necessária. `scripts/verify-traceability.js` só aponta **que** o `doc-version`
+> real diverge do registrado aqui — não presume qual lado está certo (pode ser tabela
+> desatualizada, mas também pode ser um valor que nunca bateu, como aconteceu antes com
+> "PRD v1.12" no `stack-nextjs-playbook.md`). Revisão manual decide o que fazer.
 
 ---
 
-## 1. Fluxo de PR e branch de integração — nunca merge local
+## 1. Fluxo de PR e branch de integração — nunca merge local <!-- anchor: fluxo-pr-nunca-merge-local -->
 
 O merge da PR de fase acontece via `gh pr merge`, condicionado a branch protection na
 branch de integração — **nunca** via `git merge` local seguido de push. Um merge local
@@ -51,7 +66,7 @@ convenção de fluxo; o branch protection é o que de fato impede o atalho.
 
 ---
 
-## 2. Commit automático, task a task
+## 2. Commit automático, task a task <!-- anchor: commit-automatico-task-a-task -->
 
 Ao concluir cada task do `tasks.md`, commitar **imediatamente**, no padrão
 `<tipo>(<task-id>): <resumo>` (Conventional Commits), sem pausar para confirmação
@@ -76,7 +91,7 @@ não a disciplina de commit em si.
 
 ---
 
-## 3. Bootstrap de CI e Branch Protection (fase de Setup)
+## 3. Bootstrap de CI e Branch Protection (fase de Setup) <!-- anchor: bootstrap-ci-branch-protection -->
 
 Procedimento de 4 passos, executado **uma única vez**, na fase de Setup — antes dele, o
 fluxo normal de PR (§1) não é uma trava real, é só convenção.
@@ -106,7 +121,7 @@ assumindo uma trava que não existe de fato.
 
 ---
 
-## 4. O que é automático vs. o que exige confirmação explícita
+## 4. O que é automático vs. o que exige confirmação explícita <!-- anchor: automatico-vs-confirmacao-explicita -->
 
 | Automático (sem pausar) | Exige confirmação explícita do usuário |
 | --- | --- |
@@ -119,7 +134,7 @@ Este é o único ponto de decisão humana em todo o fluxo — tudo antes disso �
 
 ---
 
-## 5. Fechamento de fase (registro externo de entrega)
+## 5. Fechamento de fase (registro externo de entrega) <!-- anchor: fechamento-de-fase -->
 
 Ao final de cada fase mergeada, gerar um registro de fechamento **fora** de
 `specs/<feature>/` — numa pasta irmã `docs/<DDMMAAAA>-<fase-slug>/`, nunca dentro da
@@ -141,7 +156,7 @@ skill `fechar-fase-speckit`.
 
 ---
 
-## 6. Fonte corrente para valores técnicos concretos
+## 6. Fonte corrente para valores técnicos concretos <!-- anchor: fonte-corrente-valores-tecnicos -->
 
 Se um valor técnico concreto (comando, config, versão, nome de job de CI, valor de
 `revalidate`) aparecer diferente entre o PRD e o `tech-specification.md` de um projeto,
@@ -155,7 +170,7 @@ arquivo) — declare explicitamente qual é a fonte corrente, nunca deixe implí
 
 ---
 
-## 7. Ajuste pós-lançamento (pedido de cliente fora do roadmap)
+## 7. Ajuste pós-lançamento (pedido de cliente fora do roadmap) <!-- anchor: ajuste-pos-lancamento -->
 
 Pedidos de cliente fora do roadmap planejado continuam exigindo o mesmo rigor de
 processo — "é só um ajustinho" não é motivo para pular o gate de qualidade.
@@ -177,7 +192,7 @@ Procedimento completo: skill `ajuste-pos-lancamento`.
 
 ---
 
-## 8. Auditoria de consistência entre documentos
+## 8. Auditoria de consistência entre documentos <!-- anchor: auditoria-consistencia-documentos -->
 
 Depois que uma decisão muda em um documento de especificação (PRD, tech-spec,
 design-tokens, discovery, MVP, seed de conteúdo, constitution), os demais documentos que
@@ -204,6 +219,78 @@ demais documentos por termo/valor, não só pelo nome do arquivo → classificar
 como corrigir / só changelog / sinalizar como intencional → aplicar respeitando o tipo de
 documento → reportar o que mudou e o que foi deixado de propósito): skill
 `auditor-consistencia-documentos`.
+
+---
+
+## 9. Verificação automática de rastreabilidade e âncoras (`scripts/verify-traceability.js`) <!-- anchor: verificacao-automatica-rastreabilidade -->
+
+As tabelas "Referenciado por" (§1–§8 acima, e o equivalente no `README.md` do pacote)
+citam **duas coisas que envelhecem de formas diferentes**: a versão de um documento do
+cliente, e a seção específica dentro de um playbook/documento que está sendo
+referenciada. As duas divergem em silêncio se só forem escritas como número — foi assim
+que uma tabela citou "PRD v1.12" quando o `prd.md` real estava em `1.1`, e é o mesmo
+risco se um dia este playbook ganhar uma seção nova no meio e "§6" passar a apontar pra
+outra coisa (numa reorganização, o item que hoje é §6 pode virar §7 — quem cita "§6" de
+fora não é avisado).
+
+**Mecanismo — duas partes:**
+
+**Parte 1 — versão do documento (`doc-version`):**
+
+1. Todo documento que pode aparecer numa tabela de rastreabilidade carrega, logo abaixo
+   do título, um marcador único e grep-ável:
+
+   ```
+   <!-- doc-version: 1.1 -->
+   ```
+
+   Comentário HTML — invisível na leitura normal, sem ambiguidade pra uma ferramenta ler.
+   Não confundir com o "Versão:"/"Revisão N" narrativo que o documento já possa ter —
+   este marcador é *só* pra máquina, o outro é pra humano; os dois convivem.
+
+2. As tabelas de rastreabilidade guardam a versão referenciada na **sua própria coluna**
+   (`doc-version` registrado), nunca embutida em texto livre de Observação.
+
+**Parte 2 — âncora da seção (independente do número):**
+
+3. Toda seção que pode ser citada de fora carrega um nome fixo, junto ao título:
+
+   ```
+   ## 6. Fonte corrente para valores técnicos concretos <!-- anchor: fonte-corrente-valores-tecnicos -->
+   ```
+
+   O número (`6`) é só a ordem de leitura *daquele documento específico* — **quem manda
+   de verdade, em qualquer referência de fora, é o nome da âncora**. Se a seção virar
+   `§7` numa reorganização futura (ou se outro projeto gerado do mesmo template tiver
+   uma seção extra antes dela e por isso numerar diferente), a âncora continua igual e
+   a referência de fora não quebra.
+
+4. Toda citação a uma seção específica de outro documento — nas tabelas de
+   rastreabilidade, ou em qualquer referência cruzada tipo "ver X §Y" — cita **só** o
+   nome da âncora entre crases: `` `fonte-corrente-valores-tecnicos` ``. **Nunca inclua
+   o número da seção na referência, nem como apoio de leitura.** Documentos como o PRD
+   nascem de um template (`/speckit.specify` etc.) e a numeração de seção varia de
+   projeto pra projeto — e pode até mudar dentro do mesmo projeto se uma seção nova
+   entrar no meio. Um número escrito na referência cria a falsa impressão de que existe
+   um mapeamento estável entre projetos, que não existe. O número continua aparecendo
+   no título da própria seção (é só a ordem de leitura natural daquele documento
+   específico); ele nunca aparece em quem cita essa seção de fora.
+
+**A verificação:**
+
+5. `node node_modules/@denimarques/anchor/scripts/verify-traceability.js` (rodado a
+   partir da raiz do repositório do projeto cliente) confere **as duas partes**: o
+   `doc-version` de cada documento citado contra o valor registrado, **e** se cada âncora
+   citada na coluna de Observação ainda existe — seja no próprio playbook, seja no
+   documento do cliente referenciado na mesma linha. Divergência ou âncora ausente →
+   imprime o problema e sai com código de erro diferente de zero.
+
+6. Rodar este script faz parte do procedimento da skill `auditor-consistencia-documentos`
+   (§8) — não é uma ferramenta à parte, é o passo que substitui "conferir a versão e a
+   seção à mão" por "deixar o script conferir".
+
+Ver `scripts/verify-traceability.js` (fonte, comentado) e a seção "Como usar" do
+`README.md` do pacote para o comando exato e como interpretar a saída.
 
 ---
 

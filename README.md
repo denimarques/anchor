@@ -17,6 +17,9 @@ define regra e tipo.
   o componente React de cada seção fica no repo do cliente, não aqui
 - `playbooks/` — convenções de git/CI/stack, em markdown, referenciadas
   (não copiadas) pelos projetos de cliente
+- `scripts/` — `verify-traceability.js`, que confere se a versão de documento e as
+  âncoras de seção citadas nas tabelas "Referenciado por" dos playbooks ainda batem com
+  a realidade do projeto cliente (ver seção "Verificar rastreabilidade" abaixo)
 
 ## O teste por trás de cada recipe
 
@@ -159,11 +162,44 @@ Se a mudança serve **só** pra um cliente, ela não entra aqui — vai pro
 repo quando o valor deveria ser o padrão pra **todo** cliente novo daquela
 plataforma.
 
+## Verificar rastreabilidade (`scripts/verify-traceability.js`)
+
+As tabelas "Referenciado por" dos playbooks (e a desta seção, logo abaixo) citam duas
+coisas digitadas à mão que divergem do real com o tempo: a **versão** de um documento
+do projeto cliente, e a **seção específica** sendo referenciada (ex: "PRD §6"). A versão
+diverge porque o documento evolui; a seção diverge porque um número de seção muda se o
+documento for reorganizado — "§6" de hoje pode ser "§7" depois de uma seção nova entrar
+no meio. Em vez de conferir isso manualmente, rode, a partir da raiz do repositório do
+projeto cliente:
+
+```bash
+node node_modules/@denimarques/anchor/scripts/verify-traceability.js
+```
+
+O script lê o marcador `<!-- doc-version: X -->` (logo abaixo do título) de cada
+documento citado, e o marcador `<!-- anchor: nome -->` (junto ao título de cada seção
+citável) — compara os dois contra o que está registrado nas tabelas de
+`playbooks/*.md` e aponta qualquer divergência ou âncora ausente, com código de erro
+diferente de zero. Detalhe do mecanismo: `engenharia-playbook.md` §9.
+
+**Formato exigido pelo script** (5 colunas — o script descarta silenciosamente qualquer
+linha com menos de 4 células, então uma tabela "resumo" fora deste formato não é
+verificada por ele, mesmo que pareça uma tabela de rastreabilidade):
+
+```
+| Projeto | Documento do cliente | `doc-version` registrado | Versão do playbook | Âncora(s) referenciada(s) |
+```
+
 ## Referenciado por (rastreabilidade reversa)
 
 Atualize esta tabela ao adotar uma versão do anchor num projeto de cliente,
 ou ao mudar algo aqui que quebre compatibilidade com um projeto já listado.
+Cada playbook usado pelo projeto vira uma ou mais linhas — uma por documento do
+cliente que o referencia — para que `verify-traceability.js` consiga validar todas.
 
-| Projeto | Versão do anchor referenciada | Observação |
-| --- | --- | --- |
-| — | — | Nenhum projeto fixou uma versão publicada ainda |
+| Projeto | Documento do cliente | `doc-version` registrado | Versão do playbook | Âncora(s) referenciada(s) |
+| --- | --- | --- | --- | --- |
+| Lente Peixe | `docs/prd.md` | `1.1` | `stack-nextjs-playbook.md` v1.0 | Referencia este arquivo inteiro em vez de manter a tabela de padrões inline (sem âncora específica) |
+| Lente Peixe | `docs/tech/tech-specification.md` | `1.3` | `stack-nextjs-playbook.md` v1.0 | `cache-por-entidade`, `icones-lucide-react` |
+| Lente Peixe | `docs/prd.md` | `1.1` | `engenharia-playbook.md` v1.0 | `fonte-corrente-valores-tecnicos` |
+| Lente Peixe | `docs/tech/tech-specification.md` | `1.3` | `engenharia-playbook.md` v1.0 | `fluxo-pr-nunca-merge-local`, `commit-automatico-task-a-task`, `bootstrap-ci-branch-protection`, `automatico-vs-confirmacao-explicita`, `auditoria-consistencia-documentos` |

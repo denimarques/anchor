@@ -1,5 +1,7 @@
 # Playbook de Stack — Next.js (App Router) + TypeScript + Tailwind + Prisma + shadcn/ui
 
+<!-- doc-version: 1.0 -->
+
 **Versão:** 1.0
 **Data:** 10 de agosto de 2026
 **Revisado em:** 10 de agosto de 2026 — versão inicial, extraída de um projeto de cliente
@@ -16,16 +18,23 @@ encontrados eram genéricos à combinação de tecnologias, não ao produto espe
 
 > **Referenciado por (rastreabilidade reversa):**
 >
-> | Projeto | Versão do playbook referenciada | Observação |
-> | --- | --- | --- |
-> | Catálogo de Óleos Essenciais | v1.0 (esta) | PRD v1.12 substitui seu antigo §8.3–§8.4 por referência a este arquivo, mantendo os valores concretos do projeto (revalidate por entidade, versão do `lucide-react`) em `tech-specification.md` §2.4 e §7.1 |
+> Formato parseável por `scripts/verify-traceability.js` (ver `engenharia-playbook.md`
+> §9) — a versão do documento do cliente vai na sua própria coluna, nunca embutida em
+> texto livre (foi assim que uma revisão anterior desta tabela citou "PRD v1.12" quando
+> o `prd.md` real estava em `1.1` — divergência que só foi pega numa auditoria manual).
+>
+> | Projeto | Documento do cliente | `doc-version` registrado | Versão deste playbook | Âncora(s) referenciada(s) |
+> | --- | --- | --- | --- | --- |
+> | Lente Peixe | `docs/prd.md` | `1.1` | `v1.0` | Referencia este arquivo inteiro em vez de manter a tabela de padrões inline (sem âncora específica) |
+> | Lente Peixe | `docs/tech/tech-specification.md` | `1.3` | `v1.0` | Valores concretos do projeto: `cache-por-entidade` e `icones-lucide-react` |
 >
 > Se este playbook mudar de forma incompatível com um projeto listado aqui, sinalize a
-> revisão necessária.
+> revisão necessária. Mecanismo de âncora nomeada (por que a coluna acima cita nomes em
+> vez de só "§N"): `engenharia-playbook.md` §9.
 
 ---
 
-## 1. Arquitetura de Componentes
+## 1. Arquitetura de Componentes <!-- anchor: arquitetura-de-componentes -->
 
 Convenção para evitar que qualquer fase/feature reimplemente botão, card, input e
 formulário do zero.
@@ -53,7 +62,7 @@ components/
 
 ---
 
-## 2. Cinco Padrões Técnicos Obrigatórios
+## 2. Cinco Padrões Técnicos Obrigatórios <!-- anchor: cinco-padroes-tecnicos-obrigatorios -->
 
 Gotchas reais desta stack, cada um motivado por um erro que já aconteceu ou que é fácil de
 cometer sem essa lembrança explícita.

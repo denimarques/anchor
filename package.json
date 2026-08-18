@@ -1,12 +1,13 @@
 {
   "name": "@denimarques/anchor",
-  "version": "1.1.0",
+  "version": "1.5.0",
   "description": "Tokens, defaults por plataforma e receitas de layout compartilhados entre projetos de cliente.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist",
-    "playbooks"
+    "playbooks",
+    "scripts"
   ],
   "scripts": {
     "build": "tsc",
