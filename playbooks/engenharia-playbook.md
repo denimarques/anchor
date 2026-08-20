@@ -31,8 +31,8 @@ o arquivo publicado até então tinha, por engano, o mesmo conteúdo de
 >
 > | Projeto | Documento do cliente | `doc-version` registrado | Versão deste playbook | Âncora(s) referenciada(s) |
 > | --- | --- | --- | --- | --- |
-> | Lente Peixe | `docs/prd.md` | `1.1` | `v1.0` | `fonte-corrente-valores-tecnicos` |
-> | Lente Peixe | `docs/tech/tech-specification.md` | `1.3` | `v1.0` | `fluxo-pr-nunca-merge-local`, `commit-automatico-task-a-task`, `bootstrap-ci-branch-protection`, `automatico-vs-confirmacao-explicita` (git/CI) e `auditoria-consistencia-documentos` |
+> | Lente Peixe | `docs/prd.md` | `1.2` | `v1.0` | `fonte-corrente-valores-tecnicos` |
+> | Lente Peixe | `docs/tech/tech-specification.md` | `1.5` | `v1.0` | `fluxo-pr-nunca-merge-local`, `commit-automatico-task-a-task`, `bootstrap-ci-branch-protection`, `automatico-vs-confirmacao-explicita` (git/CI) e `auditoria-consistencia-documentos` |
 >
 > Se este playbook mudar de forma incompatível com um projeto listado aqui, sinalize a
 > revisão necessária. `scripts/verify-traceability.js` só aponta **que** o `doc-version`
