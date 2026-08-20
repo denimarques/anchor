@@ -7,16 +7,20 @@ define regra e tipo.
 ## O que tem aqui
 
 - `src/tokens/` — schema (`Tokens`), defaults por plataforma (`landing`,
-  `dashboard`, `saas`, `crm`, `ecommerce`, `storefront`) e a função de merge
-  (`resolveTokens`)
+  `dashboard`, `saas`, `crm`, `ecommerce`, `storefront`, `news`) e a função de
+  merge (`resolveTokens`)
 - `src/layouts/` — as receitas de layout por plataforma (`platformRecipes`),
   e os tipos restritos derivados delas (`LandingSectionName`,
   `DashboardRouteName`, `SaasRouteName`, `CrmRouteName`,
-  `EcommerceRouteName`, `StorefrontRouteName`)
+  `EcommerceRouteName`, `StorefrontRouteName`, `NewsRouteName`)
 - `src/sections/` — só os **nomes** de seção/rota válidos (`sectionNames`);
   o componente React de cada seção fica no repo do cliente, não aqui
 - `playbooks/` — convenções de git/CI/stack, em markdown, referenciadas
-  (não copiadas) pelos projetos de cliente
+  (não copiadas) pelos projetos de cliente. `stack-playbook-template.md` é o
+  molde pra criar o playbook de uma stack nova (ex: Laravel, Angular) — só
+  preencher a seção 2 (padrões obrigatórios) depois de um projeto real
+  nessa stack revelar os gotchas de verdade, nunca antes (ver aviso no
+  próprio arquivo)
 - `scripts/` — `verify-traceability.js`, que confere se a versão de documento e as
   âncoras de seção citadas nas tabelas "Referenciado por" dos playbooks ainda batem com
   a realidade do projeto cliente (ver seção "Verificar rastreabilidade" abaixo)
