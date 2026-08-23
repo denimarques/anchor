@@ -26,7 +26,7 @@ encontrados eram genéricos à combinação de tecnologias, não ao produto espe
 > | Projeto | Documento do cliente | `doc-version` registrado | Versão deste playbook | Âncora(s) referenciada(s) |
 > | --- | --- | --- | --- | --- |
 > | Lente Peixe | `docs/prd.md` | `1.2` | `v1.0` | Referencia este arquivo inteiro em vez de manter a tabela de padrões inline (sem âncora específica) |
-> | Lente Peixe | `docs/tech/tech-specification.md` | `1.11` | `v1.0` | Valores concretos do projeto: `cache-por-entidade` e `icones-lucide-react` |
+> | Lente Peixe | `docs/tech/tech-specification.md` | `1.12` | `v1.0` | Valores concretos do projeto: `cache-por-entidade` e `icones-lucide-react` |
 >
 > Se este playbook mudar de forma incompatível com um projeto listado aqui, sinalize a
 > revisão necessária. Mecanismo de âncora nomeada (por que a coluna acima cita nomes em
