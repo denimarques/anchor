@@ -204,6 +204,6 @@ cliente que o referencia — para que `verify-traceability.js` consiga validar t
 | Projeto | Documento do cliente | `doc-version` registrado | Versão do playbook | Âncora(s) referenciada(s) |
 | --- | --- | --- | --- | --- |
 | Lente Peixe | `docs/prd.md` | `1.2` | `stack-nextjs-playbook.md` v1.0 | Referencia este arquivo inteiro em vez de manter a tabela de padrões inline (sem âncora específica) |
-| Lente Peixe | `docs/tech/tech-specification.md` | `1.5` | `stack-nextjs-playbook.md` v1.0 | `cache-por-entidade`, `icones-lucide-react` |
+| Lente Peixe | `docs/tech/tech-specification.md` | `1.12` | `stack-nextjs-playbook.md` v1.0 | `cache-por-entidade`, `icones-lucide-react` |
 | Lente Peixe | `docs/prd.md` | `1.2` | `engenharia-playbook.md` v1.0 | `fonte-corrente-valores-tecnicos` |
-| Lente Peixe | `docs/tech/tech-specification.md` | `1.5` | `engenharia-playbook.md` v1.0 | `fluxo-pr-nunca-merge-local`, `commit-automatico-task-a-task`, `bootstrap-ci-branch-protection`, `automatico-vs-confirmacao-explicita`, `auditoria-consistencia-documentos` |
+| Lente Peixe | `docs/tech/tech-specification.md` | `1.12` | `engenharia-playbook.md` v1.0 | `fluxo-pr-nunca-merge-local`, `commit-automatico-task-a-task`, `bootstrap-ci-branch-protection`, `automatico-vs-confirmacao-explicita`, `auditoria-consistencia-documentos` |
