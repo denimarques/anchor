@@ -62,6 +62,23 @@ function findPlaybooksDir() {
   );
 }
 
+function findPackageRoot() {
+  return path.resolve(__dirname, "..");
+}
+
+/**
+ * O `README.md` na raiz do pacote mantém sua própria tabela "Referenciado por"
+ * (documentada como espelho de leitura humana das tabelas de cada playbook). Antes
+ * desta correção, `findPlaybooksDir()` só olhava para `playbooks/`, então o README nunca
+ * era varrido — uma tabela desatualizada ali (`doc-version` errado) não gerava nenhum
+ * erro, mesmo com o script rodando normalmente. Ver incidente: README chegou a registrar
+ * `1.5` para um documento que os dois playbooks (fonte real) já registravam como `1.12`.
+ */
+function findRootReadme() {
+  const candidate = path.join(findPackageRoot(), "README.md");
+  return fs.existsSync(candidate) ? candidate : null;
+}
+
 function readFileSafe(filePath) {
   if (!fs.existsSync(filePath)) return null;
   return fs.readFileSync(filePath, "utf8");
@@ -103,10 +120,20 @@ function parseTraceabilityRows(playbookContent, playbookFile) {
     if (cells.length < 4) continue;
     if (/^projeto$/i.test(cells[0])) continue;
     if (/^-+$/.test(cells[0].replace(/\s/g, ""))) continue;
-    const [projeto, documentoCliente, docVersionRegistrado, , observacao] = cells;
+    const [projeto, documentoCliente, docVersionRegistrado, versaoPlaybookCell, observacao] = cells;
     const docMatch = documentoCliente.match(/`([^`]+)`/);
     const versionMatch = docVersionRegistrado.match(/`([^`]+)`/);
     if (!docMatch || !versionMatch) continue;
+
+    // A coluna "Versão deste playbook" às vezes inclui o nome do arquivo (ex: tabelas do
+    // README, que resumem linhas de vários playbooks: "`stack-nextjs-playbook.md` v1.0")
+    // e às vezes não (ex: tabelas dentro do próprio playbook, autorreferentes: "`v1.0`").
+    // Quando o nome aparece, as âncoras citadas nesta linha devem ser buscadas NAQUELE
+    // arquivo, não no arquivo onde a linha da tabela fisicamente está (playbookFile) —
+    // sem isso, uma linha do README citando âncoras do stack-nextjs-playbook.md as
+    // procurava dentro do próprio README, onde elas nunca existiram.
+    const playbookFileMatch = versaoPlaybookCell.match(/([a-z0-9-]+\.md)/i);
+    const targetPlaybookFile = playbookFileMatch ? playbookFileMatch[1] : playbookFile;
 
     const anchorRefs = new Set();
     const re = new RegExp(ANCHOR_REF_RE);
@@ -115,6 +142,7 @@ function parseTraceabilityRows(playbookContent, playbookFile) {
 
     rows.push({
       playbookFile,
+      targetPlaybookFile,
       projeto,
       documentoCliente: docMatch[1],
       docVersionRegistrado: versionMatch[1],
@@ -122,6 +150,66 @@ function parseTraceabilityRows(playbookContent, playbookFile) {
     });
   }
   return rows;
+}
+
+// Nome de cada playbook sem a extensão .md, para casar citações tipo `engenharia-playbook`
+// §2` mesmo quando o texto usa o nome lógico (sem `.md`) em vez do nome de arquivo.
+function playbookBaseNames(playbookFiles) {
+  return playbookFiles.map((f) => f.replace(/\.md$/, ""));
+}
+
+/**
+ * §9 do engenharia-playbook proíbe citar playbook por número de seção em qualquer
+ * referência cruzada solta (fora de tabela de rastreabilidade) — só por âncora. Antes
+ * desta correção, nada verificava isso: o `CLAUDE.md` de um projeto cliente citou
+ * `engenharia-playbook` §2, §1/§3, §5 e §4 em quatro lugares diferentes (violando a
+ * própria convenção que o playbook define) sem que o script acusasse nada, porque ele só
+ * fazia parsing de tabelas formais. Esta função varre todo `.md` do repositório cliente
+ * (exceto `node_modules/`) atrás do padrão `` `nome-do-playbook` §N `` e reporta cada
+ * ocorrência como violação de convenção.
+ */
+function scanForBareSectionReferences(clientRoot, playbookNames) {
+  const violations = [];
+  const skipDirs = new Set(["node_modules", ".git", ".specify"]);
+
+  const namePattern = playbookNames.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+  if (!namePattern) return violations;
+  // Casa: `engenharia-playbook` §2   |   `engenharia-playbook` §1/§3   |   `stack-nextjs-playbook` §4
+  const bareRefRe = new RegExp("`(" + namePattern + ")`\\s*§\\s*[0-9]+(?:\\s*/\\s*§?\\s*[0-9]+)*", "g");
+
+  function walk(dir) {
+    let entries;
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (skipDirs.has(entry.name)) continue;
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(fullPath);
+      } else if (entry.isFile() && entry.name.endsWith(".md")) {
+        const content = fs.readFileSync(fullPath, "utf8");
+        const lines = content.split("\n");
+        lines.forEach((line, idx) => {
+          let m;
+          const re = new RegExp(bareRefRe);
+          while ((m = re.exec(line)) !== null) {
+            violations.push({
+              file: path.relative(clientRoot, fullPath),
+              line: idx + 1,
+              playbook: m[1],
+              text: line.trim(),
+            });
+          }
+        });
+      }
+    }
+  }
+
+  walk(clientRoot);
+  return violations;
 }
 
 function main() {
@@ -135,6 +223,16 @@ function main() {
     const content = fs.readFileSync(path.join(playbooksDir, file), "utf8");
     playbookContents[file] = content;
     allRows.push(...parseTraceabilityRows(content, file));
+  }
+
+  // README.md da raiz do pacote guarda sua própria tabela "Referenciado por" — varrer
+  // junto, não só playbooks/*.md (ver findRootReadme()).
+  const rootReadmePath = findRootReadme();
+  if (rootReadmePath) {
+    const readmeLabel = "README.md";
+    const content = fs.readFileSync(rootReadmePath, "utf8");
+    playbookContents[readmeLabel] = content;
+    allRows.push(...parseTraceabilityRows(content, readmeLabel));
   }
 
   if (allRows.length === 0) {
@@ -171,7 +269,18 @@ function main() {
     // --- âncoras citadas na Observação desta linha ---
     if (row.anchorRefs.length === 0) continue;
 
-    const anchorsInPlaybook = collectAnchors(playbookContents[row.playbookFile]);
+    const targetContent = playbookContents[row.targetPlaybookFile];
+    if (targetContent === undefined) {
+      hasProblem = true;
+      console.log(
+        `[PLAYBOOK-ALVO-NAO-CARREGADO] ${row.playbookFile}: linha cita ` +
+          `"${row.targetPlaybookFile}" na coluna "Versão deste playbook", mas esse ` +
+          `arquivo não foi encontrado em playbooks/ nem é o README.md — confirme o nome.`
+      );
+      continue;
+    }
+
+    const anchorsInPlaybook = collectAnchors(targetContent);
     const anchorsInClientDoc = collectAnchors(docContent);
 
     for (const anchor of row.anchorRefs) {
@@ -180,13 +289,13 @@ function main() {
       if (foundInPlaybook || foundInClientDoc) {
         console.log(
           `[OK-ANCORA] ${row.playbookFile}: \`${anchor}\` — encontrada em ` +
-            `${foundInPlaybook ? row.playbookFile : row.documentoCliente}`
+            `${foundInPlaybook ? row.targetPlaybookFile : row.documentoCliente}`
         );
       } else {
         hasProblem = true;
         console.log(
           `[ANCORA-AUSENTE] ${row.playbookFile}: \`${anchor}\` citada na linha de ` +
-            `${row.documentoCliente}, mas não encontrada nem em ${row.playbookFile} ` +
+            `${row.documentoCliente}, mas não encontrada nem em ${row.targetPlaybookFile} ` +
             `nem em ${row.documentoCliente}. A seção pode ter sido renomeada, removida, ` +
             `ou o nome foi digitado errado.`
         );
@@ -194,11 +303,27 @@ function main() {
     }
   }
 
+  // --- citações soltas por número de seção (fora de tabela), em todo .md do cliente ---
+  console.log("\nVerificando citações soltas por número de seção (convenção §9)...\n");
+  const violations = scanForBareSectionReferences(clientRoot, playbookBaseNames(playbookFiles));
+  if (violations.length > 0) {
+    hasProblem = true;
+    for (const v of violations) {
+      console.log(
+        `[CONVENCAO-VIOLADA] ${v.file}:${v.line} — cita \`${v.playbook}\` por número de ` +
+          `seção em vez de âncora: "${v.text}"`
+      );
+    }
+  } else {
+    console.log("[OK-CONVENCAO] nenhuma citação solta por número de seção encontrada.");
+  }
+
   if (hasProblem) {
     console.log(
       "\nEncontrei divergência(s) — ver mensagens acima. Isto não presume qual lado " +
         "está desatualizado; decida manualmente (tabela do playbook, marcador de " +
-        "versão, ou marcador de âncora do documento) e atualize."
+        "versão, ou marcador de âncora do documento) e atualize. Para violações de " +
+        "convenção (§9), troque o número de seção pelo nome da âncora entre crases."
     );
     process.exit(1);
   }
