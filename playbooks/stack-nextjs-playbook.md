@@ -1,12 +1,17 @@
 # Playbook de Stack — Next.js (App Router) + TypeScript + Tailwind + Prisma + shadcn/ui
 
-<!-- doc-version: 1.0 -->
+<!-- doc-version: 1.1 -->
 
-**Versão:** 1.0
+**Versão:** 1.1
 **Data:** 10 de agosto de 2026
-**Revisado em:** 10 de agosto de 2026 — versão inicial, extraída de um projeto de cliente
-que combinava esta stack, no momento em que ficou claro que os padrões técnicos
-encontrados eram genéricos à combinação de tecnologias, não ao produto específico.
+**Revisado em:** 25 de agosto de 2026 — adiciona o padrão #6 (verificação de
+componentização), motivado por um incidente real no Lente Peixe: o CTA "Saiba mais" de
+uma seção duplicou à mão uma classe que já existia via `<Button>` em 4 outros lugares, e
+as setas de dois carrosséis diferentes duplicaram a mesma classe uma na outra sem
+nenhum componente por trás de nenhuma das duas — nenhum erro de build acusou, só uma
+auditoria manual pegou. Junto veio `scripts/verify-componentization.js`, heurística
+automatizada (mesmo espírito de `verify-traceability.js`) que aponta candidatos a essa
+duplicação para revisão humana.
 
 > **Este arquivo não pertence a nenhum projeto específico.** Diferente do
 > `engenharia-playbook.md` (que é sobre *processo*, vale pra qualquer stack), este é sobre
@@ -62,10 +67,15 @@ components/
 
 ---
 
-## 2. Cinco Padrões Técnicos Obrigatórios <!-- anchor: cinco-padroes-tecnicos-obrigatorios -->
+## 2. Seis Padrões Técnicos Obrigatórios <!-- anchor: cinco-padroes-tecnicos-obrigatorios -->
 
 Gotchas reais desta stack, cada um motivado por um erro que já aconteceu ou que é fácil de
 cometer sem essa lembrança explícita.
+
+> A âncora desta seção continua `cinco-padroes-tecnicos-obrigatorios` mesmo com seis
+> padrões na tabela — é um identificador estável, não uma contagem viva (mesmo motivo
+> pelo qual a rastreabilidade cita âncora nomeada em vez de "§N": renomear a âncora toda
+> vez que a tabela cresce quebraria todo projeto cliente que já a referencia).
 
 | # | Padrão | Regra |
 | --- | --- | --- |
@@ -74,6 +84,7 @@ cometer sem essa lembrança explícita.
 | 3 | **Revalidação de dados (ISR)** | Toda query do Prisma usada por uma página precisa de estratégia de cache explícita. Em páginas que combinam múltiplas fontes com sensibilidade de atualização diferente (ex: uma entidade muda todo dia, outra raramente), decidir o `revalidate` **por query** (via `unstable_cache`), não por página inteira — evita que a fonte mais volátil force revalidação desnecessária das outras. Valores concretos de cada query ficam no tech-spec do projeto, não aqui |
 | 4 | **Ícones de biblioteca (ex: lucide-react)** | Confirmar contra a versão real instalada do pacote antes de assumir que um ícone existe — nomes de ícone mudam entre versões. Para ícones ausentes, usar SVG inline com os tokens de cor do projeto, não travar a implementação esperando um ícone específico |
 | 5 | **Testes e2e que mutam dados via Prisma** | Executar via script separado, invocado como processo isolado (ex: `node node_modules/tsx/dist/cli.cjs --env-file=.env <script>`), **nunca** importando o client do Prisma diretamente no arquivo de spec do test runner — evita conflito de connection pool entre o runner de testes e o processo de mutação |
+| 6 | **Componentização antes de estilizar à mão** | Antes de escrever uma classe Tailwind de forma+cor (ex: `rounded-full border border-border-subtle`) numa tag nativa (`<button>`, `<a>`), checar se um componente de `components/ui/` já cobre esse padrão visual — se sim, usar o componente; se não, mas o padrão já existe copiado à mão em outra seção, parar e extrair um componente novo em vez de copiar de novo. Verificação heurística automatizada: `node node_modules/@denimarques/anchor/scripts/verify-componentization.js` (aponta candidatos para revisão humana, não prova definitiva) |
 
 ---
 
@@ -83,5 +94,5 @@ No PRD ou tech-spec de cada projeto que usar esta stack, a seção correspondent
 conter só uma referência a este playbook + os valores concretos daquele projeto (nomes de
 componentes específicos, valores de `revalidate` por entidade, versão exata do
 `lucide-react` instalada). Não copie a tabela de padrões inteira para dentro do documento
-do projeto — se você descobrir um sexto gotcha da stack no meio de um projeto futuro,
+do projeto — se você descobrir um novo gotcha da stack no meio de um projeto futuro,
 adicione aqui, e todo projeto que referencia este arquivo herda o aprendizado.
