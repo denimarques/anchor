@@ -199,4 +199,14 @@ function main() {
   process.exit(0);
 }
 
-main();
+// Só executa como CLI quando chamado direto — não quando `require()`ado por um teste.
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  extractTokens,
+  significantTokens,
+  sharedCount,
+  findTagCloseIndex,
+};

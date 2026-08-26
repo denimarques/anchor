@@ -101,6 +101,18 @@ function collectAnchors(content) {
 }
 
 /**
+ * A coluna "Versão deste playbook" às vezes inclui o nome do arquivo (ex: tabelas do
+ * README, que resumem linhas de vários playbooks: "`stack-nextjs-playbook.md` v1.0")
+ * e às vezes não (ex: tabelas dentro do próprio playbook, autorreferentes: "`v1.0`").
+ * Extraída como função nomeada (não inline) para poder ser testada isoladamente e
+ * reaproveitada sem duplicar a regex.
+ */
+function extractPlaybookFileFromVersionCell(versaoPlaybookCell) {
+  const m = versaoPlaybookCell.match(/([a-z0-9-]+\.md)/i);
+  return m ? m[1] : null;
+}
+
+/**
  * Extrai linhas de tabela "Referenciado por" no formato de 5 colunas:
  * | Projeto | Documento do cliente | `doc-version` registrado | Versão deste playbook | Âncora(s)/Observação |
  * Ignora cabeçalho e separador.
@@ -125,15 +137,11 @@ function parseTraceabilityRows(playbookContent, playbookFile) {
     const versionMatch = docVersionRegistrado.match(/`([^`]+)`/);
     if (!docMatch || !versionMatch) continue;
 
-    // A coluna "Versão deste playbook" às vezes inclui o nome do arquivo (ex: tabelas do
-    // README, que resumem linhas de vários playbooks: "`stack-nextjs-playbook.md` v1.0")
-    // e às vezes não (ex: tabelas dentro do próprio playbook, autorreferentes: "`v1.0`").
-    // Quando o nome aparece, as âncoras citadas nesta linha devem ser buscadas NAQUELE
-    // arquivo, não no arquivo onde a linha da tabela fisicamente está (playbookFile) —
-    // sem isso, uma linha do README citando âncoras do stack-nextjs-playbook.md as
-    // procurava dentro do próprio README, onde elas nunca existiram.
-    const playbookFileMatch = versaoPlaybookCell.match(/([a-z0-9-]+\.md)/i);
-    const targetPlaybookFile = playbookFileMatch ? playbookFileMatch[1] : playbookFile;
+    // Quando o nome do playbook aparece na coluna, as âncoras citadas nesta linha devem
+    // ser buscadas NAQUELE arquivo, não no arquivo onde a linha da tabela fisicamente
+    // está (playbookFile) — sem isso, uma linha do README citando âncoras do
+    // stack-nextjs-playbook.md as procurava dentro do próprio README, onde nunca existiram.
+    const targetPlaybookFile = extractPlaybookFileFromVersionCell(versaoPlaybookCell) || playbookFile;
 
     const anchorRefs = new Set();
     const re = new RegExp(ANCHOR_REF_RE);
@@ -152,7 +160,7 @@ function parseTraceabilityRows(playbookContent, playbookFile) {
   return rows;
 }
 
-// Nome de cada playbook sem a extensão .md, para casar citações tipo `engenharia-playbook`
+// Nome de cada playbook sem a extensão .md, para casar citações tipo `engenharia-playbook
 // §2` mesmo quando o texto usa o nome lógico (sem `.md`) em vez do nome de arquivo.
 function playbookBaseNames(playbookFiles) {
   return playbookFiles.map((f) => f.replace(/\.md$/, ""));
@@ -332,4 +340,17 @@ function main() {
   process.exit(0);
 }
 
-main();
+// Só executa como CLI quando o arquivo é chamado direto (`node verify-traceability.js`),
+// nunca quando é `require()`ado por um arquivo de teste — sem isso, testar este script
+// exigiria rodar o processo inteiro e capturar process.exit(), muito mais frágil do que
+// testar as funções puras isoladamente.
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  parseTraceabilityRows,
+  extractPlaybookFileFromVersionCell,
+  readDocVersion,
+  collectAnchors,
+};

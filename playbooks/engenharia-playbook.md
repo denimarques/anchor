@@ -1,6 +1,6 @@
 # Playbook de Engenharia — Processo (Git, CI, Documentação)
 
-<!-- doc-version: 1.0 -->
+<!-- doc-version: 1.2 -->
 
 **Versão:** 1.0
 **Data:** 18 de agosto de 2026
@@ -11,12 +11,29 @@ citavam este arquivo por número de seção (`commit-automatico.md`, `nunca-merg
 o arquivo publicado até então tinha, por engano, o mesmo conteúdo de
 `stack-nextjs-playbook.md`.
 
+**Versão:** 1.1 — data: 26 de agosto de 2026 — resultado de uma auditoria de segurança
+externa e de um garimpo em um projeto irmão (ProSuas/linkT). Adiciona três seções
+inteiramente novas: §10 (Checklist de Segurança — baseline + 6 condicionais por
+capacidade do projeto), §11 (Disciplina de Testes — teste automatizado como parte da
+definição de "implementado", não opcional) e §12 (Arquitetura — Sem Acoplamento Entre
+Domínios). Nenhuma seção anterior (§1–§9) foi alterada. Todas as três novas seções são
+agnósticas de stack por design — a tradução técnica concreta de cada uma vive no
+playbook de stack correspondente (ex: `stack-nextjs-playbook.md`, padrões #7–#10).
+
+**Versão:** 1.2 — mesma data — duas correções: (1) três itens do checklist §10 (A4, E1,
+E2) citavam `middleware.ts` diretamente — nome de arquivo específico do Next.js dentro
+do playbook que deveria valer pra qualquer stack; reescritos para linguagem agnóstica
+("mecanismo de rate-limit centralizado"); (2) achado que o Next.js 16 renomeou
+`middleware.ts` para `proxy.ts` (função exportada também renomeada de `middleware` para
+`proxy`) — o exemplo concreto no `stack-nextjs-playbook.md` (padrão #8) foi atualizado
+para bater com a convenção real da versão instalada.
+
 > **Este arquivo não pertence a nenhum projeto específico e não é sobre uma stack
 > técnica.** Diferente do `stack-nextjs-playbook.md` (que é sobre *padrões de código*
 > repetíveis a uma combinação específica de tecnologias), este é sobre **processo** — git,
-> CI, branch protection, disciplina de commit, e como manter os documentos de
-> especificação consistentes entre si. Vale pra qualquer projeto do playbook,
-> independente da stack escolhida.
+> CI, branch protection, disciplina de commit, segurança, testes, e como manter os
+> documentos de especificação consistentes entre si. Vale pra qualquer projeto do
+> playbook, independente da stack escolhida.
 
 > **Referenciado por (rastreabilidade reversa):**
 >
@@ -31,8 +48,8 @@ o arquivo publicado até então tinha, por engano, o mesmo conteúdo de
 >
 > | Projeto | Documento do cliente | `doc-version` registrado | Versão deste playbook | Âncora(s) referenciada(s) |
 > | --- | --- | --- | --- | --- |
-> | Lente Peixe | `docs/prd.md` | `1.2` | `v1.0` | `fonte-corrente-valores-tecnicos` |
-> | Lente Peixe | `docs/tech/tech-specification.md` | `1.12` | `v1.0` | `fluxo-pr-nunca-merge-local`, `commit-automatico-task-a-task`, `bootstrap-ci-branch-protection`, `automatico-vs-confirmacao-explicita` (git/CI) e `auditoria-consistencia-documentos` |
+> | Lente Peixe | `docs/prd.md` | `1.2` | `v1.2` | `fonte-corrente-valores-tecnicos` |
+> | Lente Peixe | `docs/tech/tech-specification.md` | `1.14` | `v1.2` | `fluxo-pr-nunca-merge-local`, `commit-automatico-task-a-task`, `bootstrap-ci-branch-protection`, `automatico-vs-confirmacao-explicita` (git/CI) e `auditoria-consistencia-documentos` |
 >
 > Se este playbook mudar de forma incompatível com um projeto listado aqui, sinalize a
 > revisão necessária. `scripts/verify-traceability.js` só aponta **que** o `doc-version`
@@ -149,7 +166,9 @@ sobrescritos por esse registro).
   este arquivo.
 
 Nunca gerar `spec.md`, `task.md` ou `test.md` como arquivos separados dentro do registro
-de fechamento — esse conteúdo recortado hoje vive dentro de `verification.md`.
+de fechamento — esse conteúdo recortado hoje vive dentro de `verification.md`. Ver §11.3
+para uma exceção específica e deliberada envolvendo `test.md` como planejamento
+*prévio* de teste, distinta deste recorte pós-fato.
 
 Procedimento completo (passo a passo de coleta de informação, templates e checklist):
 skill `fechar-fase-speckit`.
@@ -281,9 +300,11 @@ fora não é avisado).
 5. `node node_modules/@denimarques/anchor/scripts/verify-traceability.js` (rodado a
    partir da raiz do repositório do projeto cliente) confere **as duas partes**: o
    `doc-version` de cada documento citado contra o valor registrado, **e** se cada âncora
-   citada na coluna de Observação ainda existe — seja no próprio playbook, seja no
-   documento do cliente referenciado na mesma linha. Divergência ou âncora ausente →
-   imprime o problema e sai com código de erro diferente de zero.
+   citada ainda existe — seja no próprio playbook, seja no documento do cliente
+   referenciado na mesma linha. Também varre todo `.md` do projeto atrás de citação
+   solta por número de seção (fora do formato de tabela) e sinaliza como violação de
+   convenção. Divergência ou âncora ausente → imprime o problema e sai com código de
+   erro diferente de zero.
 
 6. Rodar este script faz parte do procedimento da skill `auditor-consistencia-documentos`
    (§8) — não é uma ferramenta à parte, é o passo que substitui "conferir a versão e a
@@ -294,10 +315,194 @@ Ver `scripts/verify-traceability.js` (fonte, comentado) e a seção "Como usar" 
 
 ---
 
+## 10. Checklist de Segurança <!-- anchor: checklist-de-seguranca -->
+
+Baseado em auditoria real do Lente Peixe (achou e corrigiu: XSS via JSON-LD sem escape,
+ausência total de headers de segurança, rate-limit duplicável entre rotas, dependências
+sem escaneamento automático). Estruturado em **baseline** (todo projeto, qualquer
+arquétipo do `anchor` — `landing`, `dashboard`, `saas`, `crm`, `ecommerce`, `storefront`,
+`news`) e **condicionais** (disparam conforme o projeto ganha a capacidade
+correspondente — não implementar antecipadamente, mesmo princípio de
+`stack-playbook-template.md`: só registrar o que resolve fricção real).
+
+**Nota de cobertura:** as subseções 10.6 e 10.7 não se aplicam a nenhum projeto do
+`anchor` até hoje (nenhum projeto ativo busca URL fornecida por usuário no servidor, nem
+desserializa payload externo em estrutura polimórfica) — documentadas aqui mesmo assim,
+porque a lista de 39 itens revisada na auditoria de segurança cobria essas duas
+categorias, e um arquétipo `saas`/`crm`/`dashboard` futuro tem chance real de precisar
+delas (webhook, integração configurável, preview de link). Ficam inertes até disparar.
+
+### 10.1 Baseline — todo projeto, desde o dia 1
+
+| # | Item | Verificação |
+| --- | --- | --- |
+| B1 | Headers de segurança (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security`) | Configurados via `headers()` do `next.config.ts` (padrão técnico #7, `stack-nextjs-playbook.md`) |
+| B2 | CSP em modo `Report-Only` antes de enforcing | Nunca subir `Content-Security-Policy` direto sem antes rodar `-Report-Only` em produção e confirmar que nada legítimo quebra |
+| B3 | Segredos nunca commitados | `.env`/`.env.local` no `.gitignore` desde o primeiro commit — checar com `git log --all --full-history -- .env` antes de assumir que está limpo |
+| B4 | Dependências com vulnerabilidade conhecida | `npm audit --audit-level=high` no CI (job `build`) + Dependabot do GitHub ativo (`.github/dependabot.yml`) |
+| B5 | Stack trace nunca exposto ao cliente em produção | Padrão do Next.js em produção — confirmar que nenhum `catch` devolve `error.stack`/`error.message` bruto numa resposta de API |
+| B6 | SQL/ORM sem concatenação manual | Prisma (ou equivalente) com queries parametrizadas — nunca template string montando SQL |
+| B7 | IDs não-sequenciais em recurso público (URL, resposta de API) | `cuid()`/`uuid()` no schema, não `autoincrement()`, para qualquer entidade referenciável de fora |
+| B8 | Log de ação crítica (não confundir com log de erro genérico) | Toda escrita relevante (formulário enviado, registro criado/alterado, rate-limit/origem rejeitados) gera uma linha de log estruturado identificável — sem isso, um incidente vira "não temos como saber o que aconteceu" |
+
+### 10.2 Condicional — projeto com autenticação de usuário
+<!-- Dispara para: dashboard, saas, crm, ou qualquer landing/storefront que ganhe painel
+     admin (ex: Lente Peixe, painel admin previsto). NÃO implementar antes de a decisão
+     de mecanismo de auth (NextAuth/Clerk/Lucia/custom) estar fechada. -->
+
+| # | Item | Verificação |
+| --- | --- | --- |
+| A1 | Senha nunca em texto puro | Hash com `bcrypt`/`argon2` (nunca MD5/SHA sem salt) — ou delegar para provedor (OAuth/passkeys/WebAuthn), preferível quando viável |
+| A2 | Sessão via cookie `httpOnly` + `Secure` + `SameSite=Lax` (mínimo) | Nunca token de sessão em `localStorage` (acessível via XSS) |
+| A3 | Autorização checada no servidor, sempre | Toda rota/Server Action sensível confere permissão no backend — checagem só no client (esconder botão) não é controle de acesso |
+| A4 | Rate-limit em tentativa de login | Sem isso, força bruta de senha é trivial — reaproveitar o mesmo mecanismo de rate-limit centralizado já usado nos endpoints públicos (padrão técnico #8 do playbook de stack) |
+| A5 | CSRF real (diferente da validação de Origin do B-baseline) | Se usar cookie de sessão, token anti-CSRF ou `SameSite=Strict` — o cenário de "sessão ativa + aba maliciosa" só existe a partir daqui, não antes |
+
+### 10.3 Condicional — projeto com endpoint público de escrita
+<!-- Dispara para: qualquer formulário público (contato, newsletter, comentário, lead) —
+     já se aplica ao Lente Peixe hoje, mesmo sem autenticação nenhuma. -->
+
+| # | Item | Verificação |
+| --- | --- | --- |
+| E1 | Rate-limit por IP+rota | Camada de intercepção de requisição centralizada, padrão técnico #8 do playbook de stack |
+| E2 | Validação de `Origin`/`Referer` | Mesma camada centralizada — anti-bot, não anti-CSRF (ver nota em A5) |
+| E3 | Validação de schema antes de persistir | `zod` (já em uso) — nunca confiar em payload sem validar forma e tipo |
+| E4 | CAPTCHA se abuso for observado na prática | reCAPTCHA v3 (invisível) é a opção padrão quando necessário — não implementar preventivamente sem sinal real de abuso |
+
+### 10.4 Condicional — projeto com upload de arquivo
+<!-- Dispara para: crm (anexos), ecommerce/storefront (produto por usuário), qualquer
+     admin panel com upload de imagem/documento. -->
+
+| # | Item | Verificação |
+| --- | --- | --- |
+| U1 | Validar por conteúdo (magic bytes), nunca só extensão | `.png` renomeado de um `.php`/`.jsp` passa em qualquer checagem de extensão |
+| U2 | Limite de tamanho explícito | Sem isso, upload vira vetor de negação de serviço |
+| U3 | Armazenamento fora do diretório servido publicamente, ou com controle de acesso | Nunca `public/uploads/` sem camada de autorização na frente |
+
+### 10.5 Condicional — projeto multi-tenant (saas, crm)
+
+| # | Item | Verificação |
+| --- | --- | --- |
+| M1 | Isolamento de dados por tenant checado em toda query | No nível de banco/ORM, não só filtro de UI — um `where` esquecido vaza dado entre clientes |
+| M2 | `tenant_id` nunca aceito só do payload do cliente | Sempre derivado da sessão/token autenticado no servidor, nunca de um campo que o cliente envia |
+
+### 10.6 Condicional — projeto que busca URL fornecida pelo usuário no servidor (SSRF)
+<!-- Dispara para: preview de link (og:image, embed), webhook configurável, integração
+     externa apontada pelo usuário ("conecte sua API"), "importar imagem/arquivo de uma
+     URL" — típico de saas/crm/dashboard com integrações, nunca visto ainda em nenhum
+     projeto do anchor, mas plausível no primeiro saas/crm real. Nenhum projeto ativo
+     dispara esta seção hoje. -->
+
+| # | Item | Verificação |
+| --- | --- | --- |
+| S1 | Allowlist de domínio, nunca blocklist | Definir explicitamente quais domínios o servidor pode buscar — blocklist é sempre incompleta |
+| S2 | Bloquear IP privado/loopback/metadata cloud | `127.0.0.1`, `169.254.169.254` (metadata da AWS/GCP/Azure), `10.0.0.0/8`, `192.168.0.0/16` — um SSRF que alcança o endpoint de metadata da nuvem costuma virar vazamento de credencial de infraestrutura, não só leitura de página interna |
+| S3 | Nunca seguir redirect automaticamente sem revalidar | Uma URL da allowlist pode redirecionar pra fora dela — revalidar o destino final, não só a URL de entrada |
+| S4 | Timeout curto e limite de tamanho de resposta | Evita a rota virar vetor de negação de serviço contra o próprio servidor |
+
+### 10.7 Condicional — projeto que desserializa payload externo em estrutura interna
+<!-- Dispara para: qualquer merge/extend de JSON externo (não validado por schema
+     explícito) em objeto de configuração interno; parsing de payload de webhook de
+     terceiro em objeto polimórfico; qualquer uso de eval/vm/new Function() sobre string
+     vinda de fora. Nenhum projeto ativo dispara esta seção hoje -- Next.js/JSON.parse
+     não tem o mesmo vetor histórico do ObjectInputStream de Java, mas prototype
+     pollution via merge de objeto não validado é o equivalente real em Node.js. -->
+
+| # | Item | Verificação |
+| --- | --- | --- |
+| D1 | Nunca `JSON.parse` + merge direto em objeto interno sem allowlist de chaves | `Object.assign(config, JSON.parse(payloadExterno))` é o padrão clássico de prototype pollution (`__proto__`, `constructor.prototype`) — validar shape explícito (zod) antes de qualquer merge |
+| D2 | Nunca `eval`/`new Function()`/`vm` sobre string vinda de fora | Sem exceção, mesmo em ferramenta interna "só pra admin" |
+| D3 | Biblioteca de parsing com tipagem estrita conhecida | Preferir `zod.parse()` (rejeita, não filtra silenciosamente) a `JSON.parse` cru sempre que o payload vem de fora do processo |
+
+**Como usar esta seção:** ao iniciar um projeto novo, aplicar 10.1 sempre. Reavaliar
+10.2–10.7 a cada nova capacidade adicionada (ex: "este projeto agora busca URL externa" →
+aplicar 10.6) — não implementar um bloco condicional antes da capacidade existir de
+verdade, mesmo princípio dos gotchas de stack: registrar o que resolve fricção real, não
+antecipação especulativa.
+
+---
+
+## 11. Disciplina de Testes <!-- anchor: disciplina-de-testes -->
+
+Adaptado de um projeto irmão (ProSuas/linkT, Angular), que já trata isso como regra
+não-negociável, não como boa prática opcional.
+
+### 11.1 Teste automatizado é parte da definição de "implementado"
+
+**Regra:** todo componente/função nova, ou alteração de comportamento existente, inclui
+o teste automatizado correspondente **no mesmo PR** — nunca depois, nunca como débito
+técnico registrado para "fazer quando sobrar tempo". Cobertura mínima esperada:
+
+- Renderização correta (o componente/função produz a saída esperada para as entradas
+  relevantes, incluindo casos de borda óbvios).
+- Interação, quando houver (clique, submit, navegação, mudança de estado).
+- Emissão de efeito colateral relevante (evento, chamada de API mockada, log).
+
+**Por que existe:** achado numa auditoria real — o Lente Peixe tinha `test:unit`
+configurado no `package.json`, testes escritos e passando localmente, mas **nenhum job
+de CI obrigatório os executava**. Ou seja: nada impedia um merge que quebrasse esses
+testes, porque a proteção de branch nunca chegava a rodá-los. Ferramenta presente sem
+gate é o mesmo padrão de risco que já apareceu antes com rate-limit "existente mas não
+aplicado" — a lição se repete: se não está no caminho obrigatório, não protege nada.
+
+### 11.2 Onde o teste roda (evitar o erro do Lente Peixe)
+
+O framework de CI de cada projeto trava um número fixo de job ids (`ci-job-ids.md`) —
+**não adicionar um job novo só para rodar teste unitário**; encaixar dentro do job
+`build` já existente, do mesmo jeito que `docs:check` (auditoria de documentação) e
+`npm audit` (dependências, §10.1 B4) já entram lá. Ver padrão técnico correspondente no
+playbook de stack (ex: `stack-nextjs-playbook.md`, padrão #9) para o comando exato.
+
+### 11.3 Planejamento de teste antes de implementar (opcional, avaliar por projeto)
+
+O projeto de referência mantém um artefato `test.md` na pasta de planejamento de cada
+feature (`docs/<DDMMAAAA>-<verbo-feature>/`), escrito **antes** da implementação —
+especifica que cenários serão cobertos e por que, funcionando como um contrato de teste
+que a implementação depois precisa satisfazer.
+
+Isso diverge do formato atual do `anchor` (`fechar-fase-speckit`), que descontinuou
+`spec.md`/`task.md`/`test.md` como arquivos separados por duplicarem, em forma de
+recorte, conteúdo que já vive em `specs/<feature>/spec.md`/`tasks.md`. Essa
+descontinuação continua válida para `spec.md`/`task.md` — mas `test.md`, se usado como
+planejamento **prévio** (não recorte pós-implementação), tem uma função diferente:
+força pensar no critério de aceitação testável antes de escrever código, não só depois.
+
+**Não decidido de forma geral** — avaliar por projeto se o ganho de disciplina TDD
+compensa o artefato extra. Se adotado, `test.md` nasce e é aprovado **antes** da task
+começar, nunca depois — senão vira só mais um recorte pós-fato, o problema original que
+motivou a descontinuação.
+
+---
+
+## 12. Arquitetura — Sem Acoplamento Entre Domínios <!-- anchor: sem-acoplamento-entre-dominios -->
+
+Adaptado do mesmo projeto de referência (regra "Facade/Service nunca injeta
+Facade/Service de outro domínio").
+
+**Regra (agnóstica de stack):** o módulo responsável por acessar/mutar dados de um
+domínio nunca invoca o módulo equivalente de outro domínio. Se uma tela ou componente
+precisa de dado de dois domínios, ela consome os dois módulos diretamente, cada um no
+seu próprio escopo — a composição acontece na camada de apresentação (componente/tela),
+nunca dentro de um módulo de domínio chamando outro.
+
+Cada stack traduz isso pro seu próprio vocabulário — ver o padrão técnico
+correspondente no playbook de stack (ex: `stack-nextjs-playbook.md`, padrão #10, para a
+convenção concreta de pasta/arquivo do Next.js).
+
+**Por que importa mais em `saas`/`crm` do que numa `landing`:** com poucos domínios (o
+caso do Lente Peixe hoje — Produtos, Depoimentos, Necessidades, Perfil), o risco de
+acoplamento acidental é baixo. Num `saas`/`crm` com dezenas de entidades relacionadas,
+um módulo de domínio importando outro "só dessa vez, é rápido" é exatamente como nasce
+uma dependência circular ou um domínio que ninguém consegue extrair/testar isolado
+depois. Registrar a regra agora, mesmo com baixo risco atual, evita reaprender isso sob
+pressão num projeto maior.
+
+---
+
 ## Como usar este arquivo
 
 No PRD ou tech-spec de cada projeto, referencie a seção específica (ex: "ver
-`engenharia-playbook.md` §3") em vez de copiar a regra inteira para dentro do documento
-do projeto. Se você descobrir um novo gotcha de processo no meio de um projeto futuro,
-adicione uma seção nova aqui — todo projeto que referencia este arquivo herda o
-aprendizado.
+`engenharia-playbook.md`, âncora `bootstrap-ci-branch-protection`") em vez de copiar a
+regra inteira para dentro do documento do projeto. Se você descobrir um novo gotcha de
+processo no meio de um projeto futuro, adicione uma seção nova aqui — todo projeto que
+referencia este arquivo herda o aprendizado.
