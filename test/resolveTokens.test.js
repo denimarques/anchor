@@ -74,12 +74,13 @@ test("resultado final sempre bate com o shape do TokensSchema (sem campos extras
   assert.deepEqual(Object.keys(result).sort(), expectedKeys);
 });
 
-test("platformDefaults expõe as 6 plataformas esperadas", () => {
+test("platformDefaults expõe as 7 plataformas esperadas", () => {
   assert.deepEqual(Object.keys(platformDefaults).sort(), [
     "crm",
     "dashboard",
     "ecommerce",
     "landing",
+    "news",
     "saas",
     "storefront",
   ]);
