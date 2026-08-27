@@ -1,6 +1,6 @@
 {
   "name": "@denimarques/anchor",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "description": "Tokens, defaults por plataforma e receitas de layout compartilhados entre projetos de cliente.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -15,11 +15,11 @@
     "test": "npm run build && node --test"
   },
   "peerDependencies": {
-    "zod": "^3.23.8"
+    "zod": "^3.23.8 || ^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
     "typescript": "^5.5.4",
-    "zod": "^3.23.8"
+    "zod": "^4.4.3"
   }
 }
