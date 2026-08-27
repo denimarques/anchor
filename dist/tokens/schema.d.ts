@@ -28,21 +28,5 @@ export declare const TokensSchema: z.ZodObject<{
     radiusCard: z.ZodString;
     fontHeading: z.ZodString;
     fontBody: z.ZodString;
-}, "strip", z.ZodTypeAny, {
-    colorPrimary: string;
-    colorBackground: string;
-    radiusButton: string;
-    radiusCard: string;
-    fontHeading: string;
-    fontBody: string;
-    colorAccent?: string | undefined;
-}, {
-    colorPrimary: string;
-    colorBackground: string;
-    radiusButton: string;
-    radiusCard: string;
-    fontHeading: string;
-    fontBody: string;
-    colorAccent?: string | undefined;
-}>;
+}, z.core.$strip>;
 export type Tokens = z.infer<typeof TokensSchema>;
