@@ -1,6 +1,6 @@
 {
   "name": "@denimarques/anchor",
-  "version": "1.11.2",
+  "version": "1.11.3",
   "description": "Tokens, defaults por plataforma e receitas de layout compartilhados entre projetos de cliente.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
